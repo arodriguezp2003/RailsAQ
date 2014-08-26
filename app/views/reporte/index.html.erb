@@ -1,0 +1,134 @@
+<h1>Reportes</h1>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">
+		  <div class="panel-heading">Ingrese los Datos</div>
+		  <div class="panel-body" >
+		    <form role="form">
+			  <div class="form-group">
+			    <label for="f1">Fecha Inicio</label>
+			    <input type="date" class="form-control" id="f1" >
+			  </div>
+			  <div class="form-group">
+			    <label for="f2">Fecha Final</label>
+			    <input type="date" class="form-control" id="f2" >
+			  </div>	
+			  <div class="form-group">
+			    <label for="xDispositivo">Dispositivo</label>
+			     <select class="form-control" name="xDispositivo" id="xDispositivo" >
+			     	<% @dispositivos.each do |d| %>
+                			<option value="<%= d.codigo%>"><%= d.descripcion%></option>
+                	<% end %>
+                </select>
+
+			  </div>			  
+			  <button id="xBuscar" type="submit" class="btn btn-active">Submit</button>
+			</form>
+
+
+             
+           
+  <a id="xExportar" style="display:none" class="ink-button green" href=""><i class="icon-cloud-download"></i>Exportar a Excel</a>
+
+</div>
+
+
+</form>
+
+		  </div>
+		</div>
+	</div>
+</div>
+<div id="load" style="display:none">
+<h3>Espere un momento... </h3>
+</div>
+<div id="chart_div">
+
+</div>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="http://momentjs.com/downloads/moment.min.js"></script>
+
+<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+<script>
+    // There are two ways to run the code...
+    // 1 - If you know you have the component and its dependencies already loaded, just do:
+   //var datepicker = new Ink.UI.DatePicker( '.ink-date-picker' );
+    //var datepicker2 = new Ink.UI.DatePicker( '.ink-date-picker2' );
+   
+    // 2 - If you're not sure the component or its dependencies are loaded at runtime, do:
+    /*
+    Ink.requireModules( ['Ink.UI.DatePicker_1'], function(DatePicker){
+        new DatePicker( '.ink-date-picker' );
+    });
+*/
+google.load('visualization', '1.1', {'packages':['annotationchart']});
+google.setOnLoadCallback(function() 
+{
+
+    $(function() 
+    {
+        
+        var datos;
+
+        $("#xBuscar").click(function(event)
+        {
+              event.preventDefault();
+              
+              var sensor = $("#xDispositivo").val();
+
+              var url = "http://realtime.aquacontrol.cl:80";
+              var p = "/JSON/" + sensor + "/" + $("#f1").val() + "/" + $("#f2").val();
+              var url = url + p;
+
+              var p2 = "/CARGA/" + sensor + "/" + $("#f1").val() + "/" + $("#f2").val();
+              url2 = "http://realtime.aquacontrol.cl:80" + p2;
+              $("#xExportar").attr("href",url2);
+
+var row = new Array();
+			  $("#load").show("slow");
+              $("#chart_div").html("");
+              $.getJSON( url, function(datas) {
+              datos =datas;
+              
+                    for(i=0;i<datas.length; i++)
+                    {
+                      var FechaRegistro = new Date(datas[i].fecha);
+                          FechaRegistro.setHours(FechaRegistro.getHours()+3);
+
+                      var res = Math.round(parseFloat(datas[i].valor) * 100) / 100
+                      console.log(FechaRegistro);
+                      
+                      //var a = FechaRegistro.replace("T"," ").replace("7Z","");
+
+                      row.push([FechaRegistro, res , undefined, undefined]);
+
+                    }
+        
+                      var data = new google.visualization.DataTable();
+                data.addColumn('datetime', 'Date');
+                data.addColumn('number', $("#xDispositivo option:selected").text());
+                data.addColumn('string', 'Kepler title');
+                data.addColumn('string', 'Kepler text');
+             
+                data.addRows(row);
+
+                var chart = new google.visualization.AnnotationChart(document.getElementById('chart_div'));
+
+                var options = {
+                  displayAnnotations: true,
+                };
+
+                chart.draw(data, options);
+                $("#xExportar").show();
+				$("#load").hide("slow");
+
+              });  
+        });
+    });
+});
+
+
+
+
+  
+</script>

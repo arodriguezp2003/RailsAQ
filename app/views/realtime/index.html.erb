@@ -1,0 +1,48 @@
+<h1>Realtime</h1>
+<div class="row">
+<% @dispositivos.each do |d| %>
+	
+		<div class="col-md-3" style="text-align:center">
+		<div class="panel panel-default">
+		  <div class="panel-heading"><%= d.descripcion %></div>
+		  <div class="panel-body" id="valor-<%= d.codigo %>">
+		     0
+		  </div>
+		</div>
+		</div>
+	
+<% end %>
+</div>
+
+
+
+	<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+	<script src="http://aquacontrol.cl/js/socket.io.js"></script>
+	<script>
+    	$(document).on("ready",function(){
+			var $valor = $("#valor"); 
+			var socket = io.connect("realtime.aquacontrol.cl:80");	
+			socket.on('welcome', function(data){
+				
+			});
+			
+			socket.on('sensor', function(data){
+			
+				if(parseInt(data.valor, 10) > 0) 
+				{
+					$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2));
+					if(data.sensor.indexOf("T") != -1)
+					{
+						$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2) + " ºC");
+					}
+					if(data.sensor.indexOf("OX") != -1)
+					{
+						$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2) + " mg/L");
+					}
+				}
+			
+			});
+		
+		});
+    
+    </script>
