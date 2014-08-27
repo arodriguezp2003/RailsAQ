@@ -1,0 +1,21 @@
+<h1>Calibraciones de Dispositivos <small>ver 1.0</small></h2>
+<%- model_class = Dispositivo -%>
+<div class="table-responsive">
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th><%= model_class.human_attribute_name(:codigo) %></th>
+      <th><%= model_class.human_attribute_name(:descripcion) %></th>
+
+    </tr>
+  </thead>
+  <tbody>
+    <% @dispositivos.each do |dispositivo| %>
+      <tr>
+        <td><%= dispositivo.codigo %></td>
+        <td><%= dispositivo.descripcion %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div>
