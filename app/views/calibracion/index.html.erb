@@ -1,7 +1,7 @@
 <h1>Calibraciones de Dispositivos <small>ver 1.0</small></h2>
 <%- model_class = Dispositivo -%>
 <div class="table-responsive">
-<table class="table table-striped">
+<table class="table table-striped table-hover">
   <thead>
     <tr>
       <th><%= model_class.human_attribute_name(:codigo) %></th>
@@ -11,7 +11,7 @@
   </thead>
   <tbody>
     <% @dispositivos.each do |dispositivo| %>
-      <tr>
+      <tr data-id="<%= dispositivo.id %>" data-name="<%= dispositivo.descripcion %>">
         <td><%= dispositivo.codigo %></td>
         <td><%= dispositivo.descripcion %></td>
       </tr>
@@ -19,3 +19,59 @@
   </tbody>
 </table>
 </div>
+<div class="row" id="calibra" style="display:none">
+  <div class="col-md-3" style="text-align:center">
+    <div class="panel panel-default">
+      <div class="panel-heading" id="nombre"></div>
+      <div class="panel-body" id="otros" style="display:none" >
+         <h2>0 ml</h2>
+         <form action="" role="form">
+           <input type="text" class="form-control">
+           <div style="padding-bottom : 20px"></div>
+           <button class="btn btn-success form-control">Calibrar</button>
+           <div style="padding-bottom : 20px"></div>
+           <button class="btn btn-danger form-control " id="volver">Volver</button>
+         </form>
+      </div>
+        <div class="panel-body" id="ph" style="display:none" >
+         <h2>3</h2>
+         <form action="" role="form">
+           
+           <button class="btn btn-success form-control">pH 7</button>
+           <button class="btn btn-success form-control">pH 4</button>
+           <button class="btn btn-success form-control">pH 10</button>
+           <div style="padding-bottom : 20px"></div>
+           <button class="btn btn-danger form-control " id="volver">Volver</button>
+         </form>
+      </div>
+    </div>
+  </div>
+  
+</div>
+<script>
+  $(document).on("ready", function(){
+    $("table").find("tbody").find("td").css({"cursor":"pointer"});
+    $("table").find("tbody").find("td").on("click",function(e){
+        var id = +$(this).closest("tr").data("id");
+        var nombre = $(this).closest("tr").data("name");
+        $("#nombre").text(nombre);
+        $("table").hide("slow");
+        $("#calibra").show("slow");
+        if(id==2){
+          $("#otros").hide("slow");
+          $("#ph").show("slow");
+        }
+        else
+        {
+          $("#ph").hide("slow");
+          $("#otros").show("slow");
+          
+        }
+    });
+    $("#volver").on("click",function() {
+        $("#calibra").hide("slow");
+        $("table").show("slow");
+        
+    });
+  });
+</script>

@@ -2,11 +2,14 @@
 <div class="row">
 <% @dispositivos.each do |d| %>
 	
-		<div class="col-md-3" style="text-align:center">
+		<div class="col-md-4" style="text-align:center">
 		<div class="panel panel-default">
 		  <div class="panel-heading"><%= d.descripcion %></div>
 		  <div class="panel-body" id="valor-<%= d.codigo %>">
-		     0
+		     <h3>0</h3>
+		     <div id="chartContainer_<%= d.codigo %>" style="height: 200px; width:100%;">
+				<p>Ocurrio un error presione F5 para mostrar los graficos</p>
+		     </div>
 		  </div>
 		</div>
 		</div>
@@ -21,6 +24,32 @@
 	<script>
     	$(document).on("ready",function(){
 			var $valor = $("#valor"); 
+			var dps = [];
+			var chart = [];
+			var dataLength = 10;
+			CanvasJS.addColorSet("red",
+                [//colorSet Array
+
+                "#E00000"              
+                ]);
+
+			<% @dispositivos.each do |d| %>
+			dps["<%= d.codigo %>"] = []; // dataPoints
+			<% end %>
+
+			<% @dispositivos.each do |d| %>
+			chart["<%= d.codigo %>"] = new CanvasJS.Chart("chartContainer_<%= d.codigo %>",{	
+			theme: "theme1",
+			colorSet: "red",
+			data: [{
+					type: "line",
+					dataPoints: dps["<%= d.codigo %>"]
+				}]
+			});
+			<% end %>
+
+			
+
 			var socket = io.connect("realtime.aquacontrol.cl:80");	
 			socket.on('welcome', function(data){
 				
@@ -30,19 +59,57 @@
 			
 				if(parseInt(data.valor, 10) > 0) 
 				{
-					$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2));
+					if(data.sensor.indexOf("PH") != -1)
+					{
+						$("#valor-" + data.sensor).find("h3").text( parseFloat(data.valor).toFixed(2));
+						if(dps[data.sensor] == null) dps[data.sensor] = [];
+
+						dps[data.sensor].push({
+								x: new Date(),
+								y: parseFloat(data.valor)
+							});
+						if (dps[data.sensor].length > dataLength)
+						{
+							dps[data.sensor].shift();				
+						}
+						chart[data.sensor].render();	
+					}
 					if(data.sensor.indexOf("T") != -1)
 					{
-						$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2) + " ºC");
+						$("#valor-" + data.sensor).find("h3").text( parseFloat(data.valor).toFixed(2) + " ºC");
+						if(dps[data.sensor] == null) dps[data.sensor] = [];
+
+						dps[data.sensor].push({
+								x: new Date(),
+								y: parseFloat(data.valor)
+							});
+						if (dps[data.sensor].length > dataLength)
+						{
+							dps[data.sensor].shift();				
+						}
+						chart[data.sensor].render();	
+						
 					}
 					if(data.sensor.indexOf("OX") != -1)
 					{
-						$("#valor-" + data.sensor).text( parseFloat(data.valor).toFixed(2) + " mg/L");
+						$("#valor-" + data.sensor).find("h3").text( parseFloat(data.valor).toFixed(2) + " mg/L");
+						if(dps[data.sensor] == null) dps[data.sensor] = [];
+
+						dps[data.sensor].push({
+								x: new Date(),
+								y: parseFloat(data.valor)
+							});
+						if (dps[data.sensor].length > dataLength)
+						{
+							dps[data.sensor].shift();				
+						}
+						chart[data.sensor].render();	
 					}
 				}
 			
 			});
-		
+			
+			
 		});
     
     </script>
